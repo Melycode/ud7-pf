@@ -72,6 +72,6 @@ public class Proyecto {
                 ", nombre='" + nombre + '\'' +
                 ", presupuesto=" + presupuesto +
                 ", lenguajePrincipal='" + lenguajePrincipal + '\'' +
-                '}' ;
+                '}' + "\n";
     }
 }

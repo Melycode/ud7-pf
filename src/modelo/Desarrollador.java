@@ -73,6 +73,6 @@ public class Desarrollador {
                 ", nombre='" + nombre + '\'' +
                 ", anyosExperiencia=" + anyosExperiencia +
                 ", salario=" + salario +
-                '}';
+                '}' + "\n";
     }
 }

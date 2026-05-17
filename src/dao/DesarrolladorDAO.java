@@ -24,12 +24,14 @@ public class DesarrolladorDAO {
         em.close();
     }
 
-    public void actualizarDesarrollador(int id, String nombre) {
+    public void actualizarDesarrollador(int id, String nombre, int anyosExperiencia, double salario) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         Desarrollador d = em.find(Desarrollador.class,id);
         if (d != null) {
             d.setNombre(nombre);
+            d.setAnyosExperiencia(anyosExperiencia);
+            d.setSalario(salario);
         }
         em.getTransaction().commit();
         em.close();
@@ -38,9 +40,9 @@ public class DesarrolladorDAO {
     public void borrarDesarrollador(int id) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        Desarrollador d = em.find(Desarrollador.class, id);
-        if (d != null) {
-            em.remove(d);
+        Desarrollador encontrado = em.find(Desarrollador.class, id);
+        if (encontrado != null) {
+            em.remove(encontrado);
         }
         em.getTransaction().commit();
         em.close();
@@ -52,8 +54,8 @@ public class DesarrolladorDAO {
         Desarrollador d = em.find(Desarrollador.class, idDesarrollador);
         Proyecto p = em.find(Proyecto.class, idProyecto);
         if (d != null && p != null) {
-            p.getDesarrolladores().add(d);
             d.getProyectos().add(p);
+            p.getDesarrolladores().add(d);
         }
         em.getTransaction().commit();
         em.close();
@@ -72,13 +74,16 @@ public class DesarrolladorDAO {
         em.close();
     }
 
-    public List<Proyecto> obtenerProyectoDeDesarrollador(int idDesarrollador) {
+    public List<Proyecto> obtenerProyectoDeUnDesarrollador(int idDesarrollador) {
         EntityManager em = emf.createEntityManager();
-        Desarrollador d = em.find(Desarrollador.class, idDesarrollador);
-        List<Proyecto> p = d.getProyectos();
-        p.toString();
+        TypedQuery<Proyecto> query = em.createQuery(
+                "select p from Desarrollador d join d.proyectos p where d.id = :id",
+                Proyecto.class
+        );
+        query.setParameter("id", idDesarrollador);
+        List<Proyecto> lista = query.getResultList();
         em.close();
-        return p;
+        return lista;
     }
 
     public double obtenerMediaExperienciaAnios() {
@@ -91,16 +96,10 @@ public class DesarrolladorDAO {
 
     public List<Desarrollador> obtenerDesarrolladorSinProyecto() {
         EntityManager em = emf.createEntityManager();
-        TypedQuery<Desarrollador> query = em.createQuery("select d from Desarrollador d", Desarrollador.class);
-        List<Desarrollador> todos = query.getResultList();
-        List<Desarrollador> result = new ArrayList<>();
-        for (Desarrollador d : todos) {
-            if (d.getProyectos().isEmpty()) {
-                result.add(d);
-            }
-        }
+        TypedQuery<Desarrollador> query = em.createQuery("select d from Desarrollador d left join d.proyectos p group by d having count(p) = 0", Desarrollador.class);
+        List<Desarrollador> desarrolladores = query.getResultList();
         em.close();
-        return result;
+        return desarrolladores;
     }
 
 
